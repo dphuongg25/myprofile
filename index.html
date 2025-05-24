@@ -36,6 +36,7 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
     .container {
@@ -46,6 +47,8 @@
       border-radius: 16px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
       animation: slideIn 1s ease;
+      position: relative;
+      z-index: 10;
     }
 
     @keyframes slideIn {
@@ -134,6 +137,8 @@
       padding: 30px;
       border-radius: 16px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 10;
     }
 
     .gallery {
@@ -172,21 +177,43 @@
         padding: 8px 14px;
       }
     }
-     /* 🍂 Lá rơi */
-    .leaf {
-      position: fixed;
-      top: -10px;
-      animation-name: fall;
-      animation-timing-function: linear;
-      animation-iteration-count: infinite;
-      z-index: 10;
-      pointer-events: none;
-    }
 
+    /* Emoji rơi */
     @keyframes fall {
       to {
         transform: translateY(110vh) rotate(360deg);
       }
+    }
+
+    .falling-emoji {
+      position: fixed;
+      top: -5vh;
+      font-size: 28px;
+      user-select: none;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      pointer-events: auto;
+      cursor: grab;
+      z-index: 9999;
+      will-change: transform;
+      transition: transform 0.3s ease;
+    }
+
+    .falling-emoji:active {
+      cursor: grabbing;
+    }
+
+    /* Hiệu ứng vỡ ra */
+    .shard {
+      position: fixed;
+      font-size: 14px;
+      pointer-events: none;
+      user-select: none;
+      opacity: 1;
+      transition: opacity 1s ease;
+      will-change: transform, opacity;
+      z-index: 10000;
     }
   </style>
 </head>
@@ -225,8 +252,6 @@
       <a href="https://www.facebook.com/nduyphuongg"><i class="fab fa-facebook"></i></a>
       <a href="https://www.instagram.com/dphuonggg._/"><i class="fab fa-instagram"></i></a>
       <a href="https://www.tiktok.com/@duyphuongg_25"><i class="fab fa-tiktok"></i></a>
-</a>
-
     </div>
   </div>
 
@@ -246,7 +271,6 @@
       const body = document.body;
       body.classList.toggle("dark");
 
-      // Ghi nhớ trạng thái
       if (body.classList.contains("dark")) {
         localStorage.setItem("theme", "dark");
       } else {
@@ -254,24 +278,112 @@
       }
     }
 
-    // Áp dụng trạng thái đã lưu
     window.onload = () => {
       const savedTheme = localStorage.getItem("theme");
       if (savedTheme === "dark") {
         document.body.classList.add("dark");
       }
-       // 🍂 Tạo lá rơi
-      const numLeaves = 20;
-      for (let i = 0; i < numLeaves; i++) {
-        let leaf = document.createElement("div");
-        leaf.classList.add("leaf");
-        leaf.style.left = Math.random() * 100 + "vw";
-        leaf.style.animationDuration = 5 + Math.random() * 5 + "s";
-        leaf.style.fontSize = 16 + Math.random() * 12 + "px";
-        leaf.innerHTML = "🌻";
-        document.body.appendChild(leaf);
+
+      const emojis = ["🌻", "☀️"];
+      const numberOfEmojis = 25;
+
+      for (let i = 0; i < numberOfEmojis; i++) {
+        createFallingEmoji(emojis);
       }
     };
+
+    function createFallingEmoji(emojis) {
+      const emoji = document.createElement("div");
+      emoji.classList.add("falling-emoji");
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+      emoji.style.left = Math.random() * window.innerWidth + "px";
+      emoji.style.animationDuration = (5 + Math.random() * 5) + "s";
+      emoji.style.animationDelay = (Math.random() * 5) + "s";
+
+      emoji.style.pointerEvents = "auto";
+
+      // Kéo thả emoji
+      emoji.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        emoji.style.animation = "none";
+
+        let shiftX = e.clientX - emoji.getBoundingClientRect().left;
+        let shiftY = e.clientY - emoji.getBoundingClientRect().top;
+
+        function moveAt(pageX, pageY) {
+          emoji.style.left = pageX - shiftX + "px";
+          emoji.style.top = pageY - shiftY + "px";
+          emoji.style.position = "fixed";
+          emoji.style.zIndex = 10000;
+        }
+
+        function onMouseMove(event) {
+          moveAt(event.clientX, event.clientY);
+        }
+
+        document.addEventListener("mousemove", onMouseMove);
+
+        document.addEventListener("mouseup", () => {
+          document.removeEventListener("mousemove", onMouseMove);
+          emoji.style.animation = ""; // Bật lại animation khi thả chuột
+        }, { once: true });
+      });
+
+      emoji.ondragstart = () => false;
+
+      // Hiệu ứng vỡ ra khi click
+      emoji.addEventListener("click", () => {
+        explodeEmoji(emoji);
+      });
+
+      document.body.appendChild(emoji);
+    }
+
+    // Hàm tạo hiệu ứng vỡ ra
+    function explodeEmoji(emoji) {
+      const rect = emoji.getBoundingClientRect();
+      const shardsCount = 10;
+      const emojisForShards = ["🌻", "☀️"];
+      const shards = [];
+
+      for (let i = 0; i < shardsCount; i++) {
+        const shard = document.createElement("div");
+        shard.classList.add("shard");
+        shard.textContent = emojisForShards[Math.floor(Math.random() * emojisForShards.length)];
+
+        // Vị trí ban đầu trùng với emoji gốc
+        shard.style.left = rect.left + rect.width / 2 + "px";
+        shard.style.top = rect.top + rect.height / 2 + "px";
+
+        // Kích thước nhỏ hơn
+        shard.style.fontSize = (8 + Math.random() * 10) + "px";
+
+        document.body.appendChild(shard);
+        shards.push(shard);
+
+        // Di chuyển ngẫu nhiên ra xa và mờ dần biến mất
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 50 + Math.random() * 100;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        // Delay animation để vỡ ra tự nhiên hơn
+        setTimeout(() => {
+          shard.style.transition = "transform 1s ease, opacity 1s ease";
+          shard.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 720}deg)`;
+          shard.style.opacity = 0;
+        }, 10);
+
+        // Xóa shard khỏi DOM sau khi animation kết thúc
+        shard.addEventListener("transitionend", () => {
+          shard.remove();
+        });
+      }
+
+      // Ẩn emoji gốc luôn
+      emoji.remove();
+    }
   </script>
 </body>
 </html>
