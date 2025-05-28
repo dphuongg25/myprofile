@@ -231,11 +231,34 @@
       <p><strong>Điện thoại:</strong> như cái trên =)))) </p>
       <p><strong>Địa chỉ:</strong> như cái số 2 =)))))))))</p>
     </div>
+    <!-- 🎵 Nút phát nhạc -->
+    <div style="text-align: center; margin-top: 20px;">
+  <button onclick="togglePlay()" style="
+    background-color: var(--accent);
+    color: rgb(7, 0, 0);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: inline-block;
+  ">
+    🎵 yeuthuongngaydo
+  </button>
+</div>
 
     <h2>🧑‍💼 Giới thiệu bản thân</h2>
     <p>
       Là một người đẹp trai, tôi biết trọng trách của mình là rất lớn =))))))
     </p>
+    
+    <h2> Tiểu sử </h2>
+    <ul>
+      <li>"Nếu may mắn, sẽ có người đến khâu vết rách trong tim con.</li>
+      <li>Nếu chẳng may, con sẽ như hồi bé, khi tan học con sẽ đứng ở cổng trường đợi ba mẹ đến đón"</li>
+    </ul>
 
     <h2>🛠️ Kỹ năng</h2>
     <div class="skills">
@@ -254,8 +277,9 @@
       <a href="https://www.tiktok.com/@duyphuongg_25"><i class="fab fa-tiktok"></i></a>
     </div>
   </div>
-
-  <div class="gallery-section">
+   </button>
+  </div>
+<div class="gallery-section">
     <h2 class="center">📸 Bộ sưu tập ảnh cute</h2>
     <div class="gallery">
       <img src="img/5d89698e-c897-4192-aa34-e249cc61397d.jpg" alt="Cute 1">
@@ -264,8 +288,35 @@
       <img src="img/set1.jpg" alt="Cute 4">
     </div>
   </div>
+   <!-- 🔊 Audio -->
+  <audio id="player" src="audio/yeuthuongngaydo.mp3" type="video/mp3"></audio>
 
   <script>
+    function toggleTheme() {
+      const body = document.body;
+      body.classList.toggle("dark");
+      if (body.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+      } else {
+        localStorage.setItem("theme", "light");
+      }
+    }
+
+    window.onload = () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark");
+      }
+    };
+
+    function togglePlay() {
+      const audio = document.getElementById("player");
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
     // Toggle Dark/Light Theme
     function toggleTheme() {
       const body = document.body;
